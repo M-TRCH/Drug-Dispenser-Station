@@ -29,7 +29,7 @@ void loop()
         {
             // Parse and execute command
             int amount = Serial3.parseInt();
-            float setpoint = Serial3.parseFloat();
+            int setpoint = Serial3.parseInt();
             if (amount < 0 || amount > DISPENSE_MAX_AMOUNT)
             {
                 dispenseAmount = interruptCounter;

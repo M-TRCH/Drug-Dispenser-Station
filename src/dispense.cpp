@@ -15,6 +15,7 @@ void InterruptEvent()
     {
         // Stop dispensing when the target amount is reached
         dispense_stop();
+        dispense_debug();
     }
 }
 
@@ -50,9 +51,8 @@ void dispense_update()
     if (rampingActive && (currentTime - lastTimeRamping >= RAMP_PERIOD_US))
     {
         lastTimeRamping = currentTime;
-        Serial3.print(dispenseAmount); // Debug output
-        Serial3.print("\t");
-        Serial3.println(interruptCounter);
+
+        dispense_debug();   // Call debug function
 
         if (setpointPWMValue != 0)
         {
@@ -63,4 +63,11 @@ void dispense_update()
             analogWrite(PWM_B_PIN, 0);                  // Example PWM signal on PWM_B_PIN
         }
     }
+}
+ 
+void dispense_debug()
+{
+    Serial3.print(dispenseAmount); // Debug output
+    Serial3.print("\t");
+    Serial3.println(interruptCounter);
 }
