@@ -25,7 +25,7 @@ void loop()
 {
     if (Serial3.available())
     {
-        if (Serial3.find("#"))
+        if (Serial3.find("*")
         {
             // Parse and execute command
             int amount = Serial3.parseInt();
