@@ -11,12 +11,7 @@
 #define REG_COUNT    2   // Object Count
 #define REG_STATUS   3   // 0 = Idle, 1 = Running
 
-// ===== Public Functions =====
-bool modbusInit(HardwareSerial& serialPort);
-void modbusPoll();
-int  modbusGetRunCommand();
-int  modbusGetSpeed();
-void modbusSetStatus(int status);
-void modbusSetCount(int count);
+void setupModbus();
+void handleModbus(bool &motorRunning, int &pwmValue, unsigned long objectCount);
 
 #endif

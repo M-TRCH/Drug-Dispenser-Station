@@ -2,41 +2,33 @@
 #include "system.h"
 #include "modbus.h"
 
-const int MOTOR_PWM = PWM_A_PIN;
 bool motorRunning = false;
+unsigned long objectCount = 0;
+int pwmValue = 0;
 
 void setup() {
   systemInit();
 
-  pinMode(MOTOR_PWM, OUTPUT);
+  // Serial debug ผ่าน USB
+  Serial.begin(115200);
+  Serial.println("System Init OK");
 
-  Serial.begin(115200); // debug USB
-  Serial.println("System Init...");
-
-  if (!modbusInit(Serial3)) {
-    Serial.println("Modbus Init Failed!");
-    while (1);
-  }
-  Serial.println("Modbus Ready.");
+  // Modbus RTU Slave (ผ่าน RS485 A/B)
+  setupModbus();
 }
 
 void loop() {
-  modbusPoll(); // handle Modbus request
+  // Poll Modbus → update motor state
+  handleModbus(motorRunning, pwmValue, objectCount);
 
-  int runCmd = modbusGetRunCommand();
-  int speed  = modbusGetSpeed();
+  // Control motor output
+  if (motorRunning) {
+    analogWrite(PWM_A_PIN, pwmValue);
+    analogWrite(PWM_B_PIN, 0);
+  } else {
+    analogWrite(PWM_A_PIN, 0);
+    analogWrite(PWM_B_PIN, 0);
+  }
 
-  if (runCmd == 1 && !motorRunning) {
-    if (speed == 0) speed = 2000; // default speed
-    analogWrite(MOTOR_PWM, speed);
-    motorRunning = true;
-    modbusSetStatus(1); // Running
-    Serial.println("Motor START");
-  }
-  else if (runCmd == 0 && motorRunning) {
-    analogWrite(MOTOR_PWM, 0);
-    motorRunning = false;
-    modbusSetStatus(0); // Idle
-    Serial.println("Motor STOP");
-  }
+  delay(5);
 }

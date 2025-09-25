@@ -1,40 +1,47 @@
 #include "modbus.h"
+#include "system.h"
 
-bool modbusInit(HardwareSerial& serialPort) {
-  // เริ่ม Modbus RTU Slave
-  serialPort.begin(9600, SERIAL_8N1);
-  if (!ModbusRTUServer.begin(SLAVE_ID, serialPort)) {
-    return false; // fail
+void setupModbus() {
+  // RS485 ใช้ Serial3 (PA9, PA10)
+  if (!ModbusRTUServer.begin(SLAVE_ID, Serial3)) {
+    Serial.println("Failed to start Modbus RTU Server!");
+    while (1);
   }
 
-  // จอง holding register 0–7
+  // สร้าง Holding Registers (0–7)
   ModbusRTUServer.configureHoldingRegisters(0, 8);
 
   // ค่าเริ่มต้น
   ModbusRTUServer.holdingRegisterWrite(REG_RUN, 0);
-  ModbusRTUServer.holdingRegisterWrite(REG_SPEED, 2000); // default speed
+  ModbusRTUServer.holdingRegisterWrite(REG_SPEED, 3000);
   ModbusRTUServer.holdingRegisterWrite(REG_COUNT, 0);
   ModbusRTUServer.holdingRegisterWrite(REG_STATUS, 0);
-
-  return true;
 }
 
-void modbusPoll() {
+void handleModbus(bool &motorRunning, int &pwmValue, unsigned long objectCount) {
   ModbusRTUServer.poll();
-}
 
-int modbusGetRunCommand() {
-  return ModbusRTUServer.holdingRegisterRead(REG_RUN);
-}
+  int runCmd = ModbusRTUServer.holdingRegisterRead(REG_RUN);
+  int speed  = ModbusRTUServer.holdingRegisterRead(REG_SPEED);
 
-int modbusGetSpeed() {
-  return ModbusRTUServer.holdingRegisterRead(REG_SPEED);
-}
+  if (runCmd == 1) {
+    if (speed == 0) speed = 3000; // default speed
+    pwmValue = speed;
 
-void modbusSetStatus(int status) {
-  ModbusRTUServer.holdingRegisterWrite(REG_STATUS, status);
-}
+    if (!motorRunning) {
+      motorRunning = true;
+      ModbusRTUServer.holdingRegisterWrite(REG_STATUS, 1);
+      Serial.println("Motor RUN via Modbus");
+    }
+  } else {
+    pwmValue = 0;
+    if (motorRunning) {
+      motorRunning = false;
+      ModbusRTUServer.holdingRegisterWrite(REG_STATUS, 0);
+      Serial.println("Motor STOP via Modbus");
+    }
+  }
 
-void modbusSetCount(int count) {
-  ModbusRTUServer.holdingRegisterWrite(REG_COUNT, count);
+  // update object count
+  ModbusRTUServer.holdingRegisterWrite(REG_COUNT, objectCount);
 }
