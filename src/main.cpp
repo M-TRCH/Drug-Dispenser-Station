@@ -1,104 +1,42 @@
 #include <Arduino.h>
 #include "system.h"
-#include <ArduinoModbus.h>
+#include "modbus.h"
 
-// ===== Modbus Config =====
-#define SLAVE_ID     2
-#define REG_RUN      0   // 0 = Stop, 1 = Run
-#define REG_SPEED    1   // PWM Speed
-#define REG_COUNT    2   // Object Count
-#define REG_STATUS   3   // 0 = Idle, 1 = Running
-
-// ==== Motor State ====
-bool motorRunning     = false;
-volatile unsigned long objectCount = 0; 
-
-// ==== Motor Config ====
-const int MOTOR_SPEED = 3000; // default speed 0–4095
-
-// ===== ISR Prototype =====
-void sensorISR();
-void motorControlFromModbus();
+const int MOTOR_PWM = PWM_A_PIN;
+bool motorRunning = false;
 
 void setup() {
   systemInit();
 
-  // === Debug ผ่าน USB ===
-  Serial.begin(115200);
-  while (!Serial);
+  pinMode(MOTOR_PWM, OUTPUT);
 
-  // === Motor pin ===
-  pinMode(PWM_A_PIN, OUTPUT);
-  pinMode(PWM_B_PIN, OUTPUT);
+  Serial.begin(115200); // debug USB
+  Serial.println("System Init...");
 
-  analogWriteResolution(MY_PWM_RESOLUTION);
-  analogWriteFrequency(MY_PWM_FREQUENCY);
-
-  // === Sensor ===
-  pinMode(SEN_2_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(SEN_2_PIN), sensorISR, FALLING);
-
-  // === Modbus RTU Slave ===
-  Serial3.begin(9600, SERIAL_8N1);
-  if (!ModbusRTUServer.begin(SLAVE_ID, Serial3)) {
-    Serial.println("Failed to start Modbus RTU Server!");
+  if (!modbusInit(Serial3)) {
+    Serial.println("Modbus Init Failed!");
     while (1);
   }
-
-  // Register 0–7
-  ModbusRTUServer.configureHoldingRegisters(0, 8);
-
-  // ค่าเริ่มต้น
-  ModbusRTUServer.holdingRegisterWrite(REG_RUN, 0);
-  ModbusRTUServer.holdingRegisterWrite(REG_SPEED, MOTOR_SPEED);
-  ModbusRTUServer.holdingRegisterWrite(REG_COUNT, 0);
-  ModbusRTUServer.holdingRegisterWrite(REG_STATUS, 0);
-
-  Serial.println("System Initialized. Modbus RTU ready.");
+  Serial.println("Modbus Ready.");
 }
 
 void loop() {
-  // ===== Modbus =====
-  ModbusRTUServer.poll();
-  motorControlFromModbus();
-}
+  modbusPoll(); // handle Modbus request
 
-// ===== Modbus Motor Control =====
-void motorControlFromModbus() {
-  int runCmd = ModbusRTUServer.holdingRegisterRead(REG_RUN);
-  int pwmVal = ModbusRTUServer.holdingRegisterRead(REG_SPEED);
+  int runCmd = modbusGetRunCommand();
+  int speed  = modbusGetSpeed();
 
-  if (runCmd == 1) {
-    if (pwmVal == 0) pwmVal = MOTOR_SPEED;
-
-    analogWrite(PWM_A_PIN, pwmVal);
-    analogWrite(PWM_B_PIN, 0);
-
-    if (!motorRunning) {
-      motorRunning = true;
-      ModbusRTUServer.holdingRegisterWrite(REG_STATUS, 1); // Running
-      Serial.println("Motor RUN via Modbus");
-    }
-  } else {
-    analogWrite(PWM_A_PIN, 0);
-    analogWrite(PWM_B_PIN, 0);
-
-    if (motorRunning) {
-      motorRunning = false;
-      ModbusRTUServer.holdingRegisterWrite(REG_STATUS, 0); // Idle
-      Serial.println("Motor STOP via Modbus");
-    }
+  if (runCmd == 1 && !motorRunning) {
+    if (speed == 0) speed = 2000; // default speed
+    analogWrite(MOTOR_PWM, speed);
+    motorRunning = true;
+    modbusSetStatus(1); // Running
+    Serial.println("Motor START");
   }
-
-  // update object count
-  ModbusRTUServer.holdingRegisterWrite(REG_COUNT, objectCount);
-}
-
-// ===== ISR =====
-void sensorISR() {
-  if (motorRunning) {
-    objectCount++;
-    Serial.print("Object Count = ");
-    Serial.println(objectCount);
+  else if (runCmd == 0 && motorRunning) {
+    analogWrite(MOTOR_PWM, 0);
+    motorRunning = false;
+    modbusSetStatus(0); // Idle
+    Serial.println("Motor STOP");
   }
 }
