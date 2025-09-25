@@ -20,8 +20,8 @@ void systemInit()
 
     analogReadResolution(ANALOG_READ_RESOLUTION); // Set ADC resolution to 12 bits for current sensing
 
-    analogWriteFrequency(PWM_FREQUENCY);  
-    analogWriteResolution(PWM_RESOLUTION);  // Set PWM resolution to 12 bits for SVPWM
+    analogWriteFrequency(MY_PWM_FREQUENCY);
+    analogWriteResolution(MY_PWM_RESOLUTION);  // Set PWM resolution to 12 bits for SVPWM
 }
 
 /* @brief       Set the built-in LEDs

@@ -33,14 +33,15 @@
 #define SERIAL3_TIMEOUT         500U
 #define SERIAL3_DECIMAL_PLACES  2
 #define ANALOG_READ_RESOLUTION  12U
-#define PWM_FREQUENCY           20000U
-#define PWM_RESOLUTION          12U
+#define MY_PWM_FREQUENCY           20000U
+#define MY_PWM_RESOLUTION          12U
 
 // (2) Object definitions
 extern HardwareSerial Serial3;
 
 // (3) Macros definitions
 #define SW_START_PRESSING  (digitalRead(SW_START_PIN) == LOW)
+#define SW_STOP_PRESSING   (digitalRead(SW_STOP_PIN) == LOW)
 #define SENSOR_1_ACTIVE    (digitalRead(SEN_1_PIN) == LOW)
 #define SENSOR_2_ACTIVE    (digitalRead(SEN_2_PIN) == LOW)
 
