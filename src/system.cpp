@@ -1,13 +1,13 @@
 
 #include "system.h"
 
-HardwareSerial Serial3(RX3_PIN, TX3_PIN); // RX, TX pins for Serial3
+HardwareSerial Serial2(RX_PIN, TX_PIN); // RX, TX pins for Serial2
+RS485Class rs485(Serial2, PA7, TX_PIN, RX_PIN);
 
 void systemInit() 
 {
-    // Initialize Serial3 with the defined baud rate
-    Serial3.begin(SERIAL3_BAUDRATE); // Initialize Serial3 with defined baud rate
-    Serial3.setTimeout(SERIAL3_TIMEOUT); // Set timeout for Serial3
+    // Serial2 for RS485 communication
+    Serial2.begin(MODBUS_BAUD, SERIAL_8N1);
 
     // Initialize pins
     pinMode(LED_RUN_PIN, OUTPUT);
