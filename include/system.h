@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include <HardwareSerial.h>
+#include <ArduinoRS485.h>
 
 // (0) Pin definitions for the STM32G431CBU6 board
 #define LED_RUN_PIN     PC10
@@ -36,8 +37,11 @@
 #define MY_PWM_FREQUENCY           20000U
 #define MY_PWM_RESOLUTION          12U
 
+
 // (2) Object definitions
-extern HardwareSerial Serial3;
+extern HardwareSerial Serial2;
+extern RS485Class rs485;
+
 
 // (3) Macros definitions
 #define SW_START_PRESSING  (digitalRead(SW_START_PIN) == LOW)
@@ -48,5 +52,9 @@ extern HardwareSerial Serial3;
 // (4) Function declarations
 void systemInit();
 void setLEDBuiltIn(bool run=false, bool cal=false, bool err=false, int delay_time=0);
+
+// Communication settings
+#define DEBUG_BAUD      9600
+#define MODBUS_BAUD     9600
 
 #endif
