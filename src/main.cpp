@@ -1,37 +1,23 @@
 #include <Arduino.h>
 #include "system.h"
-#include "modbus.h"
+#include "modbus_handler.h"
 
 bool motorRunning = false;
 unsigned long objectCount = 0;
 int pwmValue = 0;
 
-void setup() {
-  systemInit();
-
-  // Serial debug ผ่าน USB
-  // Serial.begin(9600);
-  // Serial.println("System Init OK");
-
-  // Modbus RTU Slave (ผ่าน RS485 A/B)
-  setupModbus();
-}
-
-void loop() 
+void setup() 
 {
-  RTUServer.poll();
-
-  // Poll Modbus → update motor state
-  // handleModbus(motorRunning, pwmValue, objectCount);
-
-  // // Control motor output
-  // if (motorRunning) {
-  //   analogWrite(PWM_A_PIN, pwmValue);
-  //   analogWrite(PWM_B_PIN, 0);
-  // } else {
-  //   analogWrite(PWM_A_PIN, 0);
-  //   analogWrite(PWM_B_PIN, 0);
-  // }
-
-  //delay(5);
+    systemInit();
+    setupModbus();
 }
+
+void loop()
+{
+    if (RTUServer.poll())
+    {
+        Serial3.println("Modbus request received");
+    }
+}
+
+
