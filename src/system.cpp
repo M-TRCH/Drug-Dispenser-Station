@@ -1,13 +1,18 @@
 
 #include "system.h"
 
-HardwareSerial Serial2(RX_PIN, TX_PIN); // RX, TX pins for Serial2
+HardwareSerial Serial2(RX_PIN, TX_PIN);           // RX, TX pins for Serial2
+HardwareSerial Serial3(RX3_PIN, TX3_PIN);         // RX3, TX3 pins for Serial3 (debugging)
 RS485Class rs485(Serial2, PA7, TX_PIN, RX_PIN);
 
 void systemInit() 
 {
     // Serial2 for RS485 communication
-    Serial2.begin(MODBUS_BAUD, SERIAL_8N1);
+    Serial2.begin(MODBUS_Baud, SERIAL_8N1);
+
+    // Serial3 for debugging
+    Serial3.begin(SERIAL3_BAUDRATE);
+    Serial3.setTimeout(SERIAL3_TIMEOUT);
 
     // Initialize pins
     pinMode(LED_RUN_PIN, OUTPUT);
@@ -24,11 +29,6 @@ void systemInit()
     analogWriteResolution(MY_PWM_RESOLUTION);  // Set PWM resolution to 12 bits for SVPWM
 }
 
-/* @brief       Set the built-in LEDs
- * @param run   State for the RUN LED
- * @param cal   State for the CAL LED
- * @param err   State for the ERR LED
- */
 void setLEDBuiltIn(bool run, bool cal, bool err, int delay_time)
 {
     digitalWrite(LED_RUN_PIN, run);
