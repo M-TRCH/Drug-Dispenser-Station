@@ -1,15 +1,19 @@
 #include <Arduino.h>
 #include "system.h"
 #include "motor_control.h"
+#include "modbus_handler.h"
 
-void setup() 
-{
-  systemInit();
-  motorControlInit();   
-  Serial3.println("System Initialized. Waiting for START...");
+unsigned long objectCount = 0;
+
+void setup() {
+    systemInit();
+    motorControlInit();
+    setupModbus();
+    Serial3.println("System Ready (Modbus Test Mode)");
 }
 
-void loop() 
-{
-  handleMotorCommand(); 
+void loop() {
+    objectCount++;
+    handleModbus(objectCount);
+    delay(10); 
 }
