@@ -1,48 +1,46 @@
-
 #include "modbus_handler.h"
-#include "system.h"
-#include <ArduinoModbus.h>
+#include "motor_control.h"
 
 ModbusRTUServerClass RTUServer;
 
-void setupModbus() 
-{
-    if (!RTUServer.begin(rs485, SLAVE_ID, MODBUS_Baud, SERIAL_8N1)) 
-    {
-        Serial.println("Failed to start Modbus RTU Server!");
+void setupModbus() {
+    if (!RTUServer.begin(rs485, SLAVE_ID, MODBUS_Baud, SERIAL_8N1)) {
+        Serial3.println("Failed to start Modbus RTU Server!");
+    } else {
+        Serial3.println("Modbus RTU Server started");
     }
+
     RTUServer.configureHoldingRegisters(0, 8);
+
+    RTUServer.holdingRegisterWrite(REG_RUN, 0);
+    RTUServer.holdingRegisterWrite(REG_SPEED, 0);
+    RTUServer.holdingRegisterWrite(REG_STATUS, 0);
+    RTUServer.holdingRegisterWrite(REG_COUNT, 0);
 }
 
-void handleModbus(bool &motorRunning, int &pwmValue, unsigned long objectCount) 
+void handleModbus(unsigned long objectCount) 
 {
+    // Poll for Modbus requests
     if (RTUServer.poll()) 
     {
         int runCmd = RTUServer.holdingRegisterRead(REG_RUN);
-        int speed  = 150; //RTUServer.holdingRegisterRead(REG_SPEED);
-        int baud   = RTUServer.holdingRegisterRead(REG_BAUD_RATE);
-        int id     = RTUServer.holdingRegisterRead(REG_IDENTIFIER);
+        int speed  = RTUServer.holdingRegisterRead(REG_SPEED);
 
         if (runCmd == 1) 
         {
-            pwmValue = speed;
-            if (!motorRunning)
-            {
-                motorRunning = true;
-                RTUServer.holdingRegisterWrite(REG_STATUS, 1);
-                Serial3.println("Motor started");
-             }
-         }
-        else if (runCmd == 0)
+            startMotor(speed > 0 ? speed : 2000);
+            RTUServer.holdingRegisterWrite(REG_STATUS, 1);
+            Serial3.print("Motor START, Speed = ");
+            Serial3.println(speed);
+        } 
+        else if (runCmd == 0) 
         {
-            pwmValue = 0;
-            if (motorRunning)
-            {
-                motorRunning = false;
-                RTUServer.holdingRegisterWrite(REG_STATUS, 0);
-                Serial3.println("Motor stopped");
-             }
+            stopMotor();
+            RTUServer.holdingRegisterWrite(REG_STATUS, 0);
+            Serial3.println("Motor STOP");
         }
     }
-    RTUServer.holdingRegisterWrite(REG_COUNT, objectCount & 0xFFFF);    
+
+    // Update counter register
+    RTUServer.holdingRegisterWrite(REG_COUNT, objectCount & 0xFFFF);
 }

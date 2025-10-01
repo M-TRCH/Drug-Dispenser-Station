@@ -3,11 +3,9 @@
 
 #include <Arduino.h>
 
-// ฟังก์ชันที่ main จะเรียกใช้
-void motorControlInit();
-void handleMotorCommand();
-
-void startMotor();
-void stopMotor();
+// function prototypes
+void motorControlInit();   // Initialize motor control
+void startMotor(int speed); // Start motor with PWM value
+void stopMotor();          
 
 #endif
