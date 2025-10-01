@@ -1,23 +1,15 @@
 #include <Arduino.h>
 #include "system.h"
-#include "modbus_handler.h"
-
-bool motorRunning = false;
-unsigned long objectCount = 0;
-int pwmValue = 0;
+#include "motor_control.h"
 
 void setup() 
 {
-    systemInit();
-    setupModbus();
+  systemInit();
+  motorControlInit();   
+  Serial3.println("System Initialized. Waiting for START...");
 }
 
-void loop()
+void loop() 
 {
-    if (RTUServer.poll())
-    {
-        Serial3.println("Modbus request received");
-    }
+  handleMotorCommand(); 
 }
-
-
