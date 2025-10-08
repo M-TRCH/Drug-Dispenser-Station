@@ -23,10 +23,11 @@
 #define SEN_2_PIN       PA15
 #define RS485_RX3_PIN   PB11    // RS485 RX3
 #define RS485_TX3_PIN   PB10    // RS485 TX3
-#define RS232_RX1_PIN   PB7     // RS232 RX1
-#define RS232_TX1_PIN   PC4     // RS232 TX1
+#define RS232_RX1_PIN   PC4     // RS232 RX1
+#define RS232_TX1_PIN   PB7     // RS232 TX1
 #define SYS_RX1_PIN     PA9     // SYS RX1
 #define SYS_TX1_PIN     PA10    // SYS TX1
+#define RS485_DE_PIN    PA8
 
 // System constants
 #define SERIAL_BAUDRATE          9600U
@@ -35,13 +36,15 @@
 #define SERIAL3_BAUDRATE         9600U
 #define SERIAL3_TIMEOUT          500U
 #define SERIAL3_DECIMAL_PLACES   2
+#define RS232_BAUDRATE           115200U
+#define RS232_TIMEOUT            500U
 
 #define ANALOG_READ_RESOLUTION   12U
 #define MY_PWM_FREQUENCY         20000U
 #define MY_PWM_RESOLUTION        12U
 
 // Object definitions
-extern HardwareSerial Serial;  
+extern HardwareSerial Serial;
 extern HardwareSerial Serial3;   
 extern RS485Class rs485;
 
@@ -72,6 +75,5 @@ void systemInit();
  * @param err  Set to true to turn on the error LED, false to turn it off.
  * @param delay_time  Optional delay time in milliseconds after setting the LEDs.
  */
-void setLEDBuiltIn(bool run=false, bool cal=false, bool err=false, int delay_time=0);
-
+void setLEDBuiltIn(bool state, int delay_time = 0);
 #endif
