@@ -1,15 +1,22 @@
-#include <Arduino.h>
+#include "system.h"
+#include "motor_control.h"
 
-#define RS485_RX3_PIN PB11
-#define RS485_TX3_PIN PB10
-
-HardwareSerial Serial3(RS485_RX3_PIN, RS485_TX3_PIN);  // ประกาศไว้ที่นี่ที่เดียว
+// config PWM (0–4095 สำหรับ 12 bits)
+#define TEST_PWM_SPEED 2500  
 
 void setup() {
-  Serial3.begin(9600);
+  delay(2000);                      
+  Serial.begin(115200);
+
+  systemInit();
+  motorControlInit();
 }
 
 void loop() {
-  Serial3.println("Hello RS485");
-  delay(1000);
+  Serial.println("Piwww");
+  startMotor(TEST_PWM_SPEED);
+  delay(5000);
+
+  stopMotor();
+  delay(5000);
 }

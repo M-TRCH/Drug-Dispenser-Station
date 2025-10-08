@@ -3,7 +3,6 @@
 
 void motorControlInit() 
 {
-    
     pinMode(PWM_A_PIN, OUTPUT);
     pinMode(PWM_B_PIN, OUTPUT);
 
@@ -11,8 +10,7 @@ void motorControlInit()
     analogWriteFrequency(MY_PWM_FREQUENCY);
 
     stopMotor();
-
-    Serial3.println("Motor Control Initialized");
+    Serial3.println("[Motor] Initialized");
 }
 
 void startMotor(int speed) 
@@ -22,8 +20,9 @@ void startMotor(int speed)
     analogWrite(PWM_A_PIN, pwm);
     analogWrite(PWM_B_PIN, 0);
 
-    Serial3.print("Motor START, PWM = ");
+    Serial3.print("[Motor] START, PWM = ");
     Serial3.println(pwm);
+    setLEDBuiltIn(true, 100);
 }
 
 void stopMotor() 
@@ -31,5 +30,6 @@ void stopMotor()
     analogWrite(PWM_A_PIN, 0);
     analogWrite(PWM_B_PIN, 0);
 
-    Serial3.println("Motor STOP");
+    Serial3.println("[Motor] STOP");
+    setLEDBuiltIn(false, 0);
 }

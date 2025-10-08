@@ -57,6 +57,9 @@ extern RS485Class rs485;
 // Communication settings
 #define DEBUG_BAUD      9600
 #define MODBUS_BAUD     9600
+#define RS485_BAUDRATE   115200    
+#define RS232_BAUDRATE   115200
+
 
 /* @brief System initialization function
  * 
