@@ -1,28 +1,15 @@
 #include <Arduino.h>
 
-#define RS232_RX_PIN PB7
-#define RS232_TX_PIN PC4
+#define RS485_RX3_PIN PB11
+#define RS485_TX3_PIN PB10
 
-HardwareSerial Serial232(RS232_RX_PIN, RS232_TX_PIN);
+HardwareSerial Serial3(RS485_RX3_PIN, RS485_TX3_PIN);  // ประกาศไว้ที่นี่ที่เดียว
 
 void setup() {
-  Serial.begin(115200);     // สำหรับดูใน Serial Monitor ผ่าน USB
-  Serial232.begin(9600);    // สำหรับพอร์ต RS232 จริง
-  Serial.println("=== RS232 Test Start ===");
+  Serial3.begin(9600);
 }
 
 void loop() {
-  // ส่งข้อมูลออกทาง RS232
-  Serial232.println("Hello from STM32 RS232");
-
-  // แสดงข้อความใน Serial Monitor ด้วย
-  Serial.println("Sent: Hello from STM32 RS232");
+  Serial3.println("Hello RS485");
   delay(1000);
-
-  // ถ้ามีข้อมูลกลับมาจาก RS232 (เช่นจาก loopback หรือ PC)
-  if (Serial232.available()) {
-    String msg = Serial232.readStringUntil('\n');
-    Serial.print("Received via RS232: ");
-    Serial.println(msg);
-  }
 }
