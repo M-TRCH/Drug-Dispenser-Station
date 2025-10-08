@@ -13,12 +13,20 @@ void motorControlInit()
     Serial3.println("[Motor] Initialized");
 }
 
-void startMotor(int speed) 
+// Direction: true = Forward, false = Backward
+void startMotor(int speed, bool forward) 
 {
     int pwm = constrain(speed, 0, (1 << MY_PWM_RESOLUTION) - 1);
 
-    analogWrite(PWM_A_PIN, pwm);
-    analogWrite(PWM_B_PIN, 0);
+    if (forward) {
+        analogWrite(PWM_A_PIN, pwm);
+        analogWrite(PWM_B_PIN, 0);
+        Serial3.println("[Motor] Direction: FORWARD");
+    } else {
+        analogWrite(PWM_A_PIN, 0);
+        analogWrite(PWM_B_PIN, pwm);
+        Serial3.println("[Motor] Direction: REVERSE");
+    }
 
     Serial3.print("[Motor] START, PWM = ");
     Serial3.println(pwm);

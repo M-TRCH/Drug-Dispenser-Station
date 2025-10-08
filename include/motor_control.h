@@ -5,7 +5,7 @@
 
 // function prototypes
 void motorControlInit();   // Initialize motor control
-void startMotor(int speed); // Start motor with PWM value
+void startMotor(int speed, bool forward = true);  // Start motor with PWM value
 void stopMotor();          
 
 #endif
