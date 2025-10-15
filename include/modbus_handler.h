@@ -11,8 +11,9 @@
 #define REG_SPEED       1   // PWM Speed
 #define REG_STATUS      2   // 0=Stopped, 1=Running
 #define REG_COUNT       3   // Object counter
-
-#define SLAVE_ID        1
+#define REG_TARGET      4   // Target count for auto stop
+#define REG_MODE        5   // Operation mode
+#define SLAVE_ID        10
 
 // ModbusRTUServerClass object
 extern ModbusRTUServerClass RTUServer;

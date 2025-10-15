@@ -1,4 +1,3 @@
-
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
@@ -36,12 +35,8 @@
 #define SERIAL3_BAUDRATE         9600U
 #define SERIAL3_TIMEOUT          500U
 #define SERIAL3_DECIMAL_PLACES   2
-#define RS232_BAUDRATE           115200U
 #define RS232_TIMEOUT            500U
 
-#define ANALOG_READ_RESOLUTION   12U
-#define MY_PWM_FREQUENCY         20000U
-#define MY_PWM_RESOLUTION        12U
 
 // Object definitions
 extern HardwareSerial Serial;

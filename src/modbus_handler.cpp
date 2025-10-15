@@ -10,12 +10,14 @@ void setupModbus() {
         Serial3.println("Modbus RTU Server started");
     }
 
-    RTUServer.configureHoldingRegisters(0, 8);
+    RTUServer.configureHoldingRegisters(0, 6); 
 
     RTUServer.holdingRegisterWrite(REG_RUN, 0);
     RTUServer.holdingRegisterWrite(REG_SPEED, 0);
     RTUServer.holdingRegisterWrite(REG_STATUS, 0);
     RTUServer.holdingRegisterWrite(REG_COUNT, 0);
+    RTUServer.holdingRegisterWrite(REG_TARGET, 0);
+    RTUServer.holdingRegisterWrite(REG_MODE, 0);
 }
 
 void handleModbus(unsigned long objectCount) 
@@ -28,14 +30,14 @@ void handleModbus(unsigned long objectCount)
 
         if (runCmd == 1) 
         {
-            startMotor(speed > 0 ? speed : 2000);
+            startMotor(speed > 0 ? speed : 2000, true);   // true = forward
             RTUServer.holdingRegisterWrite(REG_STATUS, 1);
             Serial3.print("Motor START, Speed = ");
             Serial3.println(speed);
         } 
         else if (runCmd == 0) 
         {
-            stopMotor();
+            stopMotor(false);
             RTUServer.holdingRegisterWrite(REG_STATUS, 0);
             Serial3.println("Motor STOP");
         }
