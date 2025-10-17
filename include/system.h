@@ -36,6 +36,9 @@
 #define SERIAL3_TIMEOUT          500U
 #define SERIAL3_DECIMAL_PLACES   2
 #define RS232_TIMEOUT            500U
+#define ANALOG_READ_RESOLUTION   12U
+#define MOTOR_PWM_FREQUENCY      20000U   // 20kHz 
+#define MOTOR_PWM_RESOLUTION     12U      // 12-bit PWM (0–4095)
 
 
 // Object definitions

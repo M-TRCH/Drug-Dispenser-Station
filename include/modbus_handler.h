@@ -8,17 +8,18 @@
 
 // == Modbus settings ==
 #define REG_RUN         0   // 0=Stop, 1=Run
-#define REG_SPEED       1   // PWM Speed
-#define REG_STATUS      2   // 0=Stopped, 1=Running
-#define REG_COUNT       3   // Object counter
-#define REG_TARGET      4   // Target count for auto stop
-#define REG_MODE        5   // Operation mode
-#define SLAVE_ID        10
+#define REG_SPEED       1   // PWM Speed (500-4000)
+#define REG_TARGET      2   // Target count (1-9999)
+#define REG_STATUS      3   // 0=Stopped, 1=Running
+#define REG_COUNT       4   // Current object count (read-only)
+#define REG_PROGRESS    5   // Progress percentage (read-only)
+
+#define SLAVE_ID        1
 
 // ModbusRTUServerClass object
 extern ModbusRTUServerClass RTUServer;
 
 void setupModbus();
-void handleModbus(unsigned long objectCount);
+void handleModbus();
 
 #endif

@@ -1,15 +1,9 @@
-#ifndef SENSOR_HANDLER_H
-#define SENSOR_HANDLER_H
-
+#pragma once
 #include <Arduino.h>
 
-// === Sensor Pin & Timing ===
-#define SEN_1_PIN             PB9      // กำหนดขาอินพุตที่ต่อกับ FS-N11N
-#define SENSOR_ACTIVE_STATE    LOW      // NPN → LOW เมื่อเจอวัตถุ
-#define SENSOR_DEBOUNCE_TIME_MS 30      // ป้องกัน bounce
+#define SENSOR_MIN_INTERVAL_US 500
 
-void sensorInit();       // ตั้งค่า pin และ interrupt
-void sensorISR();        // ฟังก์ชัน interrupt handler
-void handleSensorLogic(); // ใช้ใน loop() ถ้าต้องการเช็คใน polling mode
-
-#endif
+extern volatile unsigned long objectCount;
+void sensorInit();
+void sensorISR(); // เพิ่ม declaration สำหรับ ISR
+void handleSensorLogic();
