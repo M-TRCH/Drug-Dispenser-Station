@@ -58,7 +58,6 @@ extern RS485Class rs485;
 #define RS485_BAUDRATE   115200    
 #define RS232_BAUDRATE   115200
 
-
 /* @brief System initialization function
  * 
  * This function initializes the system by setting up serial communication,
@@ -78,3 +77,4 @@ void systemInit();
  */
 void setLEDBuiltIn(bool state, int delay_time = 0);
 #endif
+
