@@ -1,6 +1,6 @@
 #include "motor_control.h"
 
-bool motorRunning = false;
+bool flag_motorRunning = false;
 
 void motorControlInit() 
 {
@@ -16,7 +16,7 @@ void startMotor(int pwmSpeed, bool forward)
 {
     // Constrain PWM speed to safe limits
     pwmSpeed = constrain(pwmSpeed, MOTOR_PWM_MIN, MOTOR_PWM_MAX);
-    motorRunning = true;
+    flag_motorRunning = true;
     
     // Set motor direction and speed
     if (forward) {
@@ -38,7 +38,7 @@ void stopMotor()
     analogWrite(PWM_B_PIN, 0);
     
     // Update state variables
-    motorRunning = false;
+    flag_motorRunning = false;
 
     Serial.printf("[Motor] Stopped\n");
 }
