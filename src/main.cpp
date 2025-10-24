@@ -12,8 +12,7 @@
 #include "system.h"
 #include "motor_control.h"
 #include "dispense.h"
-// #include "modbus_handler.h"
-// #include "sensor_handler.h"
+#include "modbus_handler.h"
 
 void setup() 
 {
@@ -29,17 +28,9 @@ void setup()
     dispenseInit();      // Dispense system initialization
 #endif
     
-    // sensorInit();        // Sensor handling system
-    // setupModbus();       // Modbus communication
-
-    // Serial.println("[Main] Drug Dispenser Station Ready!");
-    // Serial.println("[Main] Waiting for Modbus commands...");
-
-    // while (!SW_START_PRESSING)
-    // {
-    //     delay(100);
-    // }
-    // startMotor(1500, true);  // Start motor forward at PWM 1500
+#ifdef MODBUS_HANDLER_H
+    modbusInit();        // Modbus communication initialization
+#endif
 }
 
 void loop() 
@@ -47,19 +38,17 @@ void loop()
     // Update dispense system (safety checks)
     dispense_update();
 
-    if (SW_START_PRESSING) 
+    // Handle Modbus communication
+    if (rtu.poll())
     {
-        dispense_start(10, MOTOR_PWM_DEFAULT); // Start dispensing 10 rotations
-        delay(500); // Debounce delay
+        int speed = (int)rtu.holdingRegisterRead(ADDR_REG_SPEED);
+        int dispense = (int)rtu.holdingRegisterRead(ADDR_REG_DISP);
+
+        if (speed != 0 && dispense != 0) 
+        {
+            dispense_start(dispense, speed); // Start dispensing command
+            rtu.holdingRegisterWrite(ADDR_REG_DISP, 0); // Reset dispense command
+            Serial.printf("[Main] Dispense command received: %d rotations at speed %d\n", dispense, speed);
+        } 
     }
-
-
-    // Serial.println(digitalRead(SEN_1_PIN));
-    
-    // // Main control loop
-    // handleModbus();      // Process Modbus communication
-    // handleSensorLogic(); // Process sensor logic (if needed)
-    
-    // // Small delay to prevent Modbus timeout and reduce CPU load
-
 }
