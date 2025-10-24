@@ -11,8 +11,8 @@
 
 #include "system.h"
 #include "motor_control.h"
-#include "modbus_handler.h"
-#include "sensor_handler.h"
+// #include "modbus_handler.h"
+// #include "sensor_handler.h"
 
 void setup() 
 {
@@ -20,7 +20,10 @@ void setup()
     systemInit();        // Core system initialization
 #endif
 
-    // motorControlInit();  // Motor control system
+#ifdef MOTOR_CONTROL_H
+    motorControlInit();  // Motor control system
+#endif
+    
     // sensorInit();        // Sensor handling system
     // setupModbus();       // Modbus communication
 
@@ -30,6 +33,15 @@ void setup()
 
 void loop() 
 {
+
+    if (SW_CALC_PRESSING) 
+    {
+        testMotorControl();
+        Serial.println("[Main] Start button pressed");
+        // Add start button handling logic here
+        delay(500); // Debounce delay
+    }
+
     // // Main control loop
     // handleModbus();      // Process Modbus communication
     // handleSensorLogic(); // Process sensor logic (if needed)

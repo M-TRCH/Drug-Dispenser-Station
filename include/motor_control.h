@@ -5,23 +5,34 @@
 #include "system.h"
 
 // Motor PWM control limits
-#define MOTOR_PWM_MIN        1000      // Minimum PWM value
-#define MOTOR_PWM_MAX        4000      // Maximum PWM value  
-#define MOTOR_PWM_DEFAULT    3000      // Default PWM value
-
-// Dispense control settings
-#define DISPENSE_TARGET_DEFAULT  10    // Default target count
+#define MOTOR_PWM_MIN        0          // Minimum PWM value
+#define MOTOR_PWM_MAX        4095       // Maximum PWM value  
+#define MOTOR_PWM_DEFAULT    3000       // Default PWM value
 
 // Global variables
-extern bool motorRunning;              // Motor running state
-extern volatile unsigned long objectCount;  // Object counter (interrupt-driven)
-extern unsigned int motorVelocity;     // Current motor velocity (PWM)
-extern unsigned int dispenseTarget;    // Target dispense count
+extern bool flag_motorRunning;               // Motor running state
 
-// Function declarations
-void motorControlInit();               // Initialize motor control system
-void startMotor(int pwmSpeed, bool forward);  // Start motor with specified speed/direction
-void stopMotor(bool error = false);    // Stop motor (with optional error flag)
-void resetCounter();                   // Reset object counter
+/* @brief Initialize motor control system
+ * 
+ * This function sets up the motor control pins and ensures the motor
+ * is in a stopped state at initialization.
+ */
+void motorControlInit();                    
 
+/* @brief Start the motor with specified speed and direction
+ * 
+ * @param pwmSpeed PWM speed value (default: MOTOR_PWM_DEFAULT)
+ * @param forward Direction flag (true for forward, false for reverse; default: true)
+ */
+void startMotor(int pwmSpeed=MOTOR_PWM_DEFAULT, bool forward=true);
+
+/* @brief Stop the motor operation
+ * 
+ * @param error Error flag indicating if stop is due to an error (default: false)
+ */
+void stopMotor();          
+
+/* @brief Test motor control functionality
+*/
+void testMotorControl();                    // Test motor control functionality
 #endif

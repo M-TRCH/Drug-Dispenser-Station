@@ -22,6 +22,12 @@ void systemInit(void)
     analogWriteFrequency(MOTOR_PWM_FREQUENCY);
     Serial.println("[System] ADC/PWM configured");
 
+    // Configure pin modes
+    pinMode(SW_START_PIN, INPUT);
+    pinMode(SW_CALC_PIN, INPUT);
+    pinMode(SEN_1_PIN, INPUT);
+    pinMode(SEN_2_PIN, INPUT);
+
     Serial.println("[System] Initialization complete");
 }
 
