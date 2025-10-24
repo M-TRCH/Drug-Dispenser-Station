@@ -5,27 +5,35 @@ RS485Class rs485(Serial3, RS485_DE_PIN, -1, -1); // ใช้ DE=PA8 (RE รว�
 
 void systemInit(void)
 {
-    Serial.begin(115200);
-    Serial.println("[System] Init...");
+    // Initialize debug serial communication
+    Serial.begin(DEBUG_BAUDRATE);
+    Serial.println("[System] Initializing...");
 
-    // ตั้งค่า RS485 DE pin
+    // Configure RS485 DE (Driver Enable) pin
     pinMode(RS485_DE_PIN, OUTPUT);
-    digitalWrite(RS485_DE_PIN, LOW); // เริ่มต้นในโหมดรับ
+    digitalWrite(RS485_DE_PIN, LOW); // Start in receive mode
 
-    // RS485 Serial
-    Serial3.begin(MODBUS_BAUD);  // 9600,8,N,1
-    Serial3.setTimeout(1000);
-    Serial.println("[System] RS485 Serial3 started @9600 8N1");
+    // Initialize RS485 Serial communication
+    Serial3.begin(MODBUS_BAUDRATE);
+    Serial3.setTimeout(COMMUNICATION_TIMEOUT);
+    Serial.printf("[System] RS485 Serial3 started @%u 8N1\n", MODBUS_BAUDRATE);
 
-    // LED สถานะ
+    // Configure status LED
     pinMode(LED_STATUS_PIN, OUTPUT);
-    digitalWrite(LED_STATUS_PIN, HIGH); // ปิด LED (Active LOW)
-    Serial.println("[System] LED ready");
+    digitalWrite(LED_STATUS_PIN, HIGH); // Turn off LED (Active LOW)
+    Serial.println("[System] Status LED configured");
 
+    // Configure ADC and PWM resolutions
+    analogReadResolution(ANALOG_READ_RESOLUTION);
+    analogWriteResolution(MOTOR_PWM_RESOLUTION);
+    analogWriteFrequency(MOTOR_PWM_FREQUENCY);
+    Serial.println("[System] ADC/PWM configured");
+
+    // LED startup sequence
     setLEDBuiltIn(true, 100);
     setLEDBuiltIn(false, 0);
 
-    Serial.println("[System] Init complete.");
+    Serial.println("[System] Initialization complete");
 }
 
 void setLEDBuiltIn(bool state, int delay_time)

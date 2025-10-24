@@ -4,16 +4,25 @@
 #include <Arduino.h>
 #include <ArduinoModbus.h>
 #include <ArduinoRS485.h>
+#include "system.h"
 
-#define SLAVE_ID      55
-#define REG_RUN       0
-#define REG_SPEED     1
-#define REG_STATUS    2
-#define REG_COUNT     3
+// Modbus configuration
+#define MODBUS_SLAVE_ID         55        // Modbus slave address
+#define MODBUS_REGISTER_COUNT   8         // Number of holding registers
 
-extern ModbusRTUServerClass RTUServer;
+// Modbus register map
+#define REG_RUN                 0         // Run command register
+#define REG_SPEED               1         // Speed setpoint register  
+#define REG_STATUS              2         // Status register
+#define REG_COUNT               3         // Object count register
+#define REG_TARGET              4         // Dispense target register
+#define REG_RESET               5         // Reset command register
 
-void setupModbus();
-void handleModbus();
+// Global objects
+extern ModbusRTUServerClass RTUServer;    // Modbus RTU server instance
+
+// Function declarations
+void setupModbus();                       // Initialize Modbus communication
+void handleModbus();                      // Process Modbus communication
 
 #endif

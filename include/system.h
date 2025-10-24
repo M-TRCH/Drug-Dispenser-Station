@@ -29,16 +29,14 @@
 #define RS485_DE_PIN    PA8
 
 // System constants
-#define SERIAL_BAUDRATE          9600U
-#define SERIAL_TIMEOUT           500U
-#define SERIAL_DECIMAL_PLACES    2
-#define SERIAL3_BAUDRATE         9600U
-#define SERIAL3_TIMEOUT          500U
-#define SERIAL3_DECIMAL_PLACES   2
-#define RS232_TIMEOUT            500U
-#define ANALOG_READ_RESOLUTION   12U
-#define MOTOR_PWM_FREQUENCY      20000U   // 20kHz 
-#define MOTOR_PWM_RESOLUTION     12U      // 12-bit PWM (0–4095)
+#define DEBUG_BAUDRATE           115200U  // Debug serial baudrate
+#define MODBUS_BAUDRATE          9600U    // Modbus communication baudrate  
+#define RS485_BAUDRATE           115200U  // RS485 high-speed baudrate
+#define RS232_BAUDRATE           115200U  // RS232 communication baudrate
+#define COMMUNICATION_TIMEOUT    500U     // General communication timeout
+#define ANALOG_READ_RESOLUTION   12U      // ADC resolution (0-4095)
+#define MOTOR_PWM_FREQUENCY      20000U   // PWM frequency: 20kHz 
+#define MOTOR_PWM_RESOLUTION     12U      // PWM resolution: 12-bit (0-4095)
 
 
 // Object definitions
@@ -52,11 +50,9 @@ extern RS485Class rs485;
 #define SENSOR_1_ACTIVE    (digitalRead(SEN_1_PIN) == LOW)
 #define SENSOR_2_ACTIVE    (digitalRead(SEN_2_PIN) == LOW)
 
-// Communication settings
-#define DEBUG_BAUD      9600
-#define MODBUS_BAUD     9600
-#define RS485_BAUDRATE   115200    
-#define RS232_BAUDRATE   115200
+// Communication aliases for compatibility
+#define DEBUG_BAUD      DEBUG_BAUDRATE
+#define MODBUS_BAUD     MODBUS_BAUDRATE
 
 /* @brief System initialization function
  * 
@@ -70,9 +66,7 @@ void systemInit();
  * This function controls the state of the built-in LEDs for run, calibration,
  * and error indicators. It also includes an optional delay.
  * 
- * @param run  Set to true to turn on the run LED, false to turn it off.
- * @param cal  Set to true to turn on the calibration LED, false to turn it off.
- * @param err  Set to true to turn on the error LED, false to turn it off.
+ * @param state  Set to true to turn on the LED, false to turn it off.
  * @param delay_time  Optional delay time in milliseconds after setting the LEDs.
  */
 void setLEDBuiltIn(bool state, int delay_time = 0);

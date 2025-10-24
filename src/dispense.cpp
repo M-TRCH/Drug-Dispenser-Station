@@ -11,9 +11,9 @@ bool rampingActive = false;
 void InterruptEvent() 
 {
     interruptCounter++;
-    if (interruptCounter >= dispenseAmount)
-    {
-        // Stop dispensing when the target amount is reached
+    
+    // Stop dispensing when target amount is reached
+    if (interruptCounter >= dispenseAmount) {
         dispense_stop();
         dispense_debug();
     }
@@ -21,53 +21,67 @@ void InterruptEvent()
 
 void dispenseInit()
 {   
-     // Initialize sensor pin as input
-    pinMode(SEN_1_PIN, INPUT);
-    attachInterrupt(digitalPinToInterrupt(SEN_1_PIN), InterruptEvent, RISING); 
+    // Initialize sensor pin as input with pull-up resistor
+    pinMode(SEN_1_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(SEN_1_PIN), InterruptEvent, RISING);
+    Serial.println("[Dispense] System initialized");
 }
 
 void dispense_start(int amount, float setpoint)
 {
-    interruptCounter = 0;       // Reset interrupt counter
-    lastTimeRamping = micros(); // Initialize last time for ramping
-    currentPWMValue = 0.0f;     // Initialize current PWM value
-    setpointPWMValue = constrain(fabs(setpoint), 0.0f, PWM_LIMIT); // Set the desired PWM limit
+    // Reset system state
+    interruptCounter = 0;
+    lastTimeRamping = micros();
+    currentPWMValue = 0.0f;
+    
+    // Set target parameters with constraints
+    setpointPWMValue = constrain(fabs(setpoint), 0.0f, PWM_LIMIT);
     dispenseAmount = constrain(abs(amount), 0, DISPENSE_MAX_AMOUNT);
-    rampingActive = true;       // Start ramping
+    rampingActive = true;
+    
+    Serial.printf("[Dispense] Started: Amount=%d, Setpoint=%.1f\n", dispenseAmount, setpointPWMValue);
 }
 
 void dispense_stop()
 {
+    // Stop all PWM outputs
     analogWrite(PWM_A_PIN, 0);
     analogWrite(PWM_B_PIN, 0);
     analogWrite(PWM_C_PIN, 0);
-
-    rampingActive = false;  // Stop ramping
+    
+    // Disable ramping
+    rampingActive = false;
+    currentPWMValue = 0.0f;
+    
+    Serial.println("[Dispense] Stopped");
 }
 
 void dispense_update()
 {
     uint32_t currentTime = micros();
-    if (rampingActive && (currentTime - lastTimeRamping >= RAMP_PERIOD_US))
-    {
+    
+    // Check if ramping update is needed
+    if (rampingActive && (currentTime - lastTimeRamping >= RAMP_PERIOD_US)) {
         lastTimeRamping = currentTime;
-
-        dispense_debug();   // Call debug function
-
-        if (setpointPWMValue != 0)
-        {
+        
+        // Update PWM ramping if setpoint is valid
+        if (setpointPWMValue > 0) {
             currentPWMValue += RAMP_STEP;
-            if (currentPWMValue >= setpointPWMValue)  currentPWMValue = setpointPWMValue;
-
-            analogWrite(PWM_A_PIN, (int)currentPWMValue);  // Example PWM signal on PWM_A_PIN
-            analogWrite(PWM_B_PIN, 0);                  // Example PWM signal on PWM_B_PIN
+            if (currentPWMValue >= setpointPWMValue) {
+                currentPWMValue = setpointPWMValue;
+            }
+            
+            // Apply PWM to motor pins
+            analogWrite(PWM_A_PIN, (int)currentPWMValue);
+            analogWrite(PWM_B_PIN, 0);  // Reverse direction (inactive)
         }
+        
+        dispense_debug();
     }
 }
  
 void dispense_debug()
 {
-    Serial3.print(dispenseAmount); // Debug output
-    Serial3.print("\t");
-    Serial3.println(interruptCounter);
+    Serial3.printf("Target: %d\tCount: %d\tPWM: %.1f\n", 
+                   dispenseAmount, interruptCounter, currentPWMValue);
 }
