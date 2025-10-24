@@ -1,27 +1,20 @@
 #include "system.h"
 
 HardwareSerial Serial3(RS485_RX3_PIN, RS485_TX3_PIN);
-RS485Class rs485(Serial3, RS485_DE_PIN, -1, -1); // ใช้ DE=PA8 (RE รวมกับ DE)
+RS485Class rs485(Serial3, RS485_DUMMY_PIN, RS232_TX1_PIN, RS232_RX1_PIN); 
 
 void systemInit(void)
 {
-    // Initialize debug serial communication
-    Serial.begin(DEBUG_BAUDRATE);
+    // Initialize system serial communication
+    Serial.setRx(SYS_RX1_PIN);
+    Serial.setTx(SYS_TX1_PIN);
+    Serial.begin(SYSTEM_BAUDRATE);
     Serial.println("[System] Initializing...");
 
-    // Configure RS485 DE (Driver Enable) pin
-    pinMode(RS485_DE_PIN, OUTPUT);
-    digitalWrite(RS485_DE_PIN, LOW); // Start in receive mode
-
     // Initialize RS485 Serial communication
-    Serial3.begin(MODBUS_BAUDRATE);
-    Serial3.setTimeout(COMMUNICATION_TIMEOUT);
-    Serial.printf("[System] RS485 Serial3 started @%u 8N1\n", MODBUS_BAUDRATE);
-
-    // Configure status LED
-    pinMode(LED_STATUS_PIN, OUTPUT);
-    digitalWrite(LED_STATUS_PIN, HIGH); // Turn off LED (Active LOW)
-    Serial.println("[System] Status LED configured");
+    Serial3.begin(RS485_BAUDRATE);
+    Serial3.setTimeout(RS485_TIMEOUT);
+    Serial.printf("[System] RS485 Serial3 started @%u 8N1\n", RS485_BAUDRATE);
 
     // Configure ADC and PWM resolutions
     analogReadResolution(ANALOG_READ_RESOLUTION);
@@ -29,15 +22,39 @@ void systemInit(void)
     analogWriteFrequency(MOTOR_PWM_FREQUENCY);
     Serial.println("[System] ADC/PWM configured");
 
-    // LED startup sequence
-    setLEDBuiltIn(true, 100);
-    setLEDBuiltIn(false, 0);
-
     Serial.println("[System] Initialization complete");
 }
 
-void setLEDBuiltIn(bool state, int delay_time)
+void testSerial1()
 {
-    digitalWrite(LED_STATUS_PIN, state ? LOW : HIGH);
-    if (delay_time > 0) delay(delay_time);
+    if (Serial.find('#'))
+    {
+        int num = Serial.parseInt();
+        for (int i = 0; i < num; i++)
+        {
+            Serial.printf("print: %u\n", i);
+            delay(500);
+        }
+    }
+    else
+    {
+        Serial.println("No '#' found");
+    }
+}
+
+void testSerial3()
+{
+    if (Serial3.find('#'))
+    {
+        int num = Serial3.parseInt();
+        for (int i = 0; i < num; i++)
+        {
+            Serial3.printf("print: %u\n", i);
+            delay(500);
+        }
+    }
+    else
+    {
+        Serial3.println("No '#' found");
+    }   
 }

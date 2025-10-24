@@ -2,7 +2,7 @@
 /**
  * @file main.cpp
  * @brief Drug Dispenser Station - Main Application
- * @author M-TRCH
+ * @author M.Teerachot, ijaoMxy
  * @date 2025
  * 
  * This is the main application file for the drug dispenser station system.
@@ -16,22 +16,24 @@
 
 void setup() 
 {
-    // Initialize all subsystems in order
+#ifdef SYSTEM_H
     systemInit();        // Core system initialization
-    motorControlInit();  // Motor control system
-    sensorInit();        // Sensor handling system
-    setupModbus();       // Modbus communication
+#endif
 
-    Serial.println("[Main] Drug Dispenser Station Ready!");
-    Serial.println("[Main] Waiting for Modbus commands...");
+    // motorControlInit();  // Motor control system
+    // sensorInit();        // Sensor handling system
+    // setupModbus();       // Modbus communication
+
+    // Serial.println("[Main] Drug Dispenser Station Ready!");
+    // Serial.println("[Main] Waiting for Modbus commands...");
 }
 
 void loop() 
 {
-    // Main control loop
-    handleModbus();      // Process Modbus communication
-    handleSensorLogic(); // Process sensor logic (if needed)
+    // // Main control loop
+    // handleModbus();      // Process Modbus communication
+    // handleSensorLogic(); // Process sensor logic (if needed)
     
-    // Small delay to prevent Modbus timeout and reduce CPU load
-    delay(20);
+    // // Small delay to prevent Modbus timeout and reduce CPU load
+    // delay(20);
 }

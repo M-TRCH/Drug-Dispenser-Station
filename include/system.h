@@ -24,20 +24,20 @@
 #define RS485_TX3_PIN   PB10    // RS485 TX3
 #define RS232_RX1_PIN   PC4     // RS232 RX1
 #define RS232_TX1_PIN   PB7     // RS232 TX1
-#define SYS_RX1_PIN     PA9     // SYS RX1
-#define SYS_TX1_PIN     PA10    // SYS TX1
-#define RS485_DE_PIN    PA8
+#define SYS_RX1_PIN     PA10    // System RX1
+#define SYS_TX1_PIN     PA9     // System TX1
+#define RS485_DUMMY_PIN PA4     // RS485 Dummy pin
+#define SYS_SERIAL_TIMEOUT      1000U   // SYS Serial Timeout (ms)
+#define RS485_TIMEOUT           500U    // RS485 communication timeout (ms)
+#define RS232_TIMEOUT           500U    // RS232 communication timeout (ms)
 
 // System constants
-#define DEBUG_BAUDRATE           115200U  // Debug serial baudrate
-#define MODBUS_BAUDRATE          9600U    // Modbus communication baudrate  
-#define RS485_BAUDRATE           115200U  // RS485 high-speed baudrate
-#define RS232_BAUDRATE           115200U  // RS232 communication baudrate
-#define COMMUNICATION_TIMEOUT    500U     // General communication timeout
-#define ANALOG_READ_RESOLUTION   12U      // ADC resolution (0-4095)
-#define MOTOR_PWM_FREQUENCY      20000U   // PWM frequency: 20kHz 
-#define MOTOR_PWM_RESOLUTION     12U      // PWM resolution: 12-bit (0-4095)
-
+#define SYSTEM_BAUDRATE          9600U      // System serial baudrate
+#define RS485_BAUDRATE           9600U      // RS485 baudrate
+#define RS232_BAUDRATE           9600U      // RS232 baudrate
+#define ANALOG_READ_RESOLUTION   12U        // ADC resolution (0-4095)
+#define MOTOR_PWM_FREQUENCY      20000U     // PWM frequency: 20kHz 
+#define MOTOR_PWM_RESOLUTION     12U        // PWM resolution: 12-bit (0-4095)
 
 // Object definitions
 extern HardwareSerial Serial;
@@ -50,10 +50,6 @@ extern RS485Class rs485;
 #define SENSOR_1_ACTIVE    (digitalRead(SEN_1_PIN) == LOW)
 #define SENSOR_2_ACTIVE    (digitalRead(SEN_2_PIN) == LOW)
 
-// Communication aliases for compatibility
-#define DEBUG_BAUD      DEBUG_BAUDRATE
-#define MODBUS_BAUD     MODBUS_BAUDRATE
-
 /* @brief System initialization function
  * 
  * This function initializes the system by setting up serial communication,
@@ -61,14 +57,18 @@ extern RS485Class rs485;
  */
 void systemInit();
 
-/* @brief Set the state of built-in LEDs
+/* @brief Test Serial1 communication
  * 
- * This function controls the state of the built-in LEDs for run, calibration,
- * and error indicators. It also includes an optional delay.
- * 
- * @param state  Set to true to turn on the LED, false to turn it off.
- * @param delay_time  Optional delay time in milliseconds after setting the LEDs.
+ * This function tests the Serial1 communication by looking for a '#' character
+ * and printing numbers up to the parsed integer value.
  */
-void setLEDBuiltIn(bool state, int delay_time = 0);
+void testSerial1();
+
+/* @brief Test Serial3 communication
+ * 
+ * This function tests the Serial3 communication by looking for a '#' character
+ * and printing numbers up to the parsed integer value.
+ */
+void testSerial3();
 #endif
 

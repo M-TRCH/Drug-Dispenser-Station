@@ -6,7 +6,7 @@ ModbusRTUServerClass RTUServer;
 
 void setupModbus() {
     // Initialize Modbus RTU server
-    if (!RTUServer.begin(rs485, MODBUS_SLAVE_ID, MODBUS_BAUDRATE, SERIAL_8N1)) {
+    if (!RTUServer.begin(rs485, MODBUS_SLAVE_ID, RS485_BAUDRATE, SERIAL_8N1)) {
         Serial.println("[Modbus] ERROR: Failed to start RTU Server!");
         return;
     }
