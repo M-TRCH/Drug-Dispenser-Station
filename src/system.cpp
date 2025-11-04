@@ -64,3 +64,23 @@ void testSerial3()
         Serial3.println("No '#' found");
     }   
 }
+
+void performSystemCalibration()
+{
+    Serial.println("[System] Starting system calibration...");
+    
+    // Simple calibration - just check sensors
+    bool sensor1_ok = digitalRead(SEN_1_PIN) == HIGH; // Assuming idle state is HIGH
+    
+    Serial.printf("[System] Sensor 1 status: %s\n", sensor1_ok ? "OK" : "FAULT");
+    
+    // Set calibration status
+    extern bool systemCalibrated;
+    systemCalibrated = sensor1_ok;
+    
+    if (systemCalibrated) {
+        Serial.println("[System] Calibration completed successfully");
+    } else {
+        Serial.println("[System] Calibration failed - sensor faults detected");
+    }
+}

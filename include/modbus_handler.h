@@ -15,6 +15,7 @@
 #define ADDR_REG_DISP           11      // Dispense command register (1-99 rotations)
 #define ADDR_REG_HOME           12      // Home command register (1=find home, 2=return home)
 #define ADDR_REG_CALIBRATE      13      // Calibration command register (1=start calibration)
+#define ADDR_REG_SENSOR_TEST    14      // Sensor test command (1=test 10 times)
 
 // Status registers (read-only)
 #define ADDR_REG_STATUS         20      // Status register (read-only)
@@ -28,7 +29,11 @@
 
 // Calibration command codes  
 #define CALIB_CMD_NONE          0       // No calibration command
-#define CALIB_CMD_START         1       // Start full calibration
+#define CALIB_CMD_START         1       // Start calibration
+
+// Sensor test command codes
+#define SENSOR_TEST_NONE        0       // No sensor test
+#define SENSOR_TEST_START       1       // Start sensor test (10 readings)
 
 // Status bit flags
 #define STATUS_MOTOR_RUNNING    (1 << 0)   // Motor is running
@@ -50,15 +55,27 @@
 // Global objects
 extern ModbusRTUServerClass rtu;    // Modbus RTU server instance
 
+// ===== SHARED VARIABLES =====
+extern bool isEnhancedHomingActive;  // แชร์สถานะ Enhanced Homing กับไฟล์อื่น
+
 // Function declarations
 void modbusInit();                       // Initialize Modbus communication
 void modbusHandler();                    // Process Modbus communication
 void processHomeCommand(int homeCmd);    // Process home commands
 void processCalibrationCommand(int calibCmd); // Process calibration commands
+void processSensorTestCommand(int testCmd);   // Process sensor test commands
 void updateStatusRegisters();            // Update status registers
 void updateHomingProcess();              // Update homing process (non-blocking)
 
+// ===== PHASE 1: ENHANCED HOME DETECTION =====
+void enhancedHomeDetection();            // Enhanced home position detection
+void confirmHomePosition();              // Confirm and set home position
+
 // External function declarations (from main.cpp)
 extern void performSystemCalibration();  // System calibration function
+
+// External function declarations (from dispense.cpp)
+extern void disableRotationISR();        // Disable rotation counting ISR
+extern void enableRotationISR();         // Enable rotation counting ISR
 
 #endif

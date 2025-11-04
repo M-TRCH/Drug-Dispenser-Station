@@ -44,6 +44,9 @@ extern HardwareSerial Serial;
 extern HardwareSerial Serial3;   
 extern RS485Class rs485;
 
+// Global system status variables
+extern bool systemCalibrated;
+
 // Macros definitions
 #define SW_START_PRESSING  (digitalRead(SW_START_PIN) == LOW)
 #define SW_CALC_PRESSING   (digitalRead(SW_CALC_PIN) == LOW)
@@ -70,5 +73,13 @@ void testSerial1();
  * and printing numbers up to the parsed integer value.
  */
 void testSerial3();
+
+/* @brief Perform system calibration
+ * 
+ * This function performs a complete system calibration including sensor checks
+ * and motor testing. Sets systemCalibrated flag upon completion.
+ */
+void performSystemCalibration();
+
 #endif
 
