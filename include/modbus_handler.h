@@ -79,3 +79,4 @@ extern void disableRotationISR();        // Disable rotation counting ISR
 extern void enableRotationISR();         // Enable rotation counting ISR
 
 #endif
+
