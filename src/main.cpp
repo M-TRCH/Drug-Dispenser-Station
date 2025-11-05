@@ -12,8 +12,7 @@
 #include "system.h"
 #include "motor_control.h"
 #include "dispense.h"
-// #include "modbus_handler.h"
-// #include "sensor_handler.h"
+#include "modbus_handler.h"
 
 // Dispense configuration
 #define DISPENSE_ROTATIONS 10      // Number of rotations for dispense
@@ -32,12 +31,21 @@ void setup()
 #ifdef DISPENSE_H
     dispenseInit();      // Dispense system initialization
 #endif
+
+#ifdef MODBUS_HANDLER_H
+    modbusInit();        // Modbus communication initialization
+#endif
 }
 
 void loop() 
 {
     // Update dispense system (safety checks)
     dispense_update();
+
+    // Handle Modbus communication
+#ifdef MODBUS_HANDLER_H
+    modbusHandler();
+#endif
 
     // Debug: Status print every 2 seconds
     static unsigned long lastDebugTime = 0;
@@ -51,7 +59,6 @@ void loop()
     // HOME button (SW_CALC) - HOME TO CALIBRATE THEN DISPENSE
     if (SW_CALC_PRESSING) 
     {
-    {
         Serial.println("[Main] Home button pressed - Starting home sequence");
         
         // Step 1: ทำ HOME (หมุน 1 รอบเพื่อ calibrate)
@@ -61,7 +68,7 @@ void loop()
         while (homeActive) 
         {
             dispense_update(); // Continue safety checks
-            delay(500); // Polling delay
+            delay(1500); // Polling delay
         }
         
         // Step 2: START Dispense 
@@ -80,6 +87,5 @@ void loop()
         Serial.println("[Main] Start button pressed - Direct dispense");
         dispense_start(DISPENSE_ROTATIONS, MOTOR_PWM_DEFAULT); // Start dispensing with default speed
         delay(500); // Debounce delay
-    }
     }
 }

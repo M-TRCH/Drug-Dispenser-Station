@@ -60,6 +60,7 @@ extern bool isEnhancedHomingActive;  // แชร์สถานะ Enhanced Hom
 void modbusInit();                       // Initialize Modbus communication
 void modbusHandler();                    // Process Modbus communication
 void processHomeCommand(int homeCmd);    // Process home commands
+void processDispenseCommand(int dispenseRotations); // Process dispense commands
 void processCalibrationCommand(int calibCmd); // Process calibration commands
 void processSensorTestCommand(int testCmd);   // Process sensor test commands
 void updateStatusRegisters();            // Update status registers
