@@ -44,9 +44,6 @@ extern HardwareSerial Serial;
 extern HardwareSerial Serial3;   
 extern RS485Class rs485;
 
-// Global system status variables
-extern bool systemCalibrated;
-
 // Macros definitions
 #define SW_START_PRESSING  (digitalRead(SW_START_PIN) == LOW)
 #define SW_CALC_PRESSING   (digitalRead(SW_CALC_PIN) == LOW)
