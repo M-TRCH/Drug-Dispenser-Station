@@ -75,6 +75,17 @@ void processHomeCommand(int homeCmd)
         
         Serial.println("[Modbus] Home+Dispense sequence started via Modbus");
     }
+    else if (homeCmd == HOME_CMD_SEEK) {
+        Serial.println("[Modbus] HOME SEEK command received - Seeking home sensor");
+        
+        // Clear the command register
+        rtu.holdingRegisterWrite(ADDR_REG_HOME, HOME_CMD_NONE);
+        
+        // เริ่มการค้นหา HOME sensor
+        home_seek_start(MOTOR_PWM_SLOW);
+        
+        Serial.println("[Modbus] Home seek operation started via Modbus");
+    }
 }
 
 void processDispenseCommand(int dispenseRotations)
@@ -121,6 +132,10 @@ void updateStatusRegisters()
         status |= STATUS_HOMING;
     }
     
+    if (homeSeeking) {
+        status |= STATUS_HOMING;  // ใช้ flag เดียวกันสำหรับการ seek sensor
+    }
+    
     if (homeCompleted) {
         status |= STATUS_HOME_FOUND;
         status |= STATUS_AT_HOME;
@@ -136,8 +151,8 @@ void updateStatusRegisters()
     // อัปเดต position (scaled x100)
     rtu.holdingRegisterWrite(ADDR_REG_POSITION, rotationCounter * 100);
     
-    // อัปเดต error (ปัจจุบันยังไม่มี error handling)
-    rtu.holdingRegisterWrite(ADDR_REG_ERROR, ERR_NONE);
+    // อัปเดต error code จากระบบ
+    rtu.holdingRegisterWrite(ADDR_REG_ERROR, lastErrorCode);
 }
 
 void updateHomingProcess()

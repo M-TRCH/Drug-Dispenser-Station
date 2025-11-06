@@ -22,8 +22,9 @@
 
 // Home command codes
 #define HOME_CMD_NONE           0       // No home command
-#define HOME_CMD_FIND           1       // Find home position
+#define HOME_CMD_FIND           1       // Find home position (rotation-based)
 #define HOME_CMD_RETURN         2       // Return to home position
+#define HOME_CMD_SEEK           3       // Seek home sensor (run until sensor detected)
 
 // Calibration command codes  
 //#define CALIB_CMD_NONE          0       // No calibration command
@@ -49,6 +50,7 @@
 #define ERR_NOT_CALIBRATED      2       // System not calibrated
 #define ERR_INVALID_COMMAND     3       // Invalid command received
 #define ERR_MOTOR_TIMEOUT       4       // Motor operation timeout
+#define ERR_HOME_SEEK_TIMEOUT   5       // Home seek timeout
 
 // Global objects
 extern ModbusRTUServerClass rtu;    // Modbus RTU server instance
