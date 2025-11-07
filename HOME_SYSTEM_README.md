@@ -1,193 +1,109 @@
-# ระบบ HOME สำหรับ Drug Dispenser Station
+# คู่มือระบบ HOME - Drug Dispenser Station
 
-## ภาพรวมของระบบ
+## ภาพรวมระบบ HOME
 
-ระบบ HOME ถูกออกแบบมาเพื่อให้การจ่ายยามีความแม่นยำมากขึ้น โดยจะทำการ "calibrate" ตำแหน่งเริ่มต้นก่อนการจ่ายยาเมื่อต้องการ
+ระบบมี **3 แบบการ HOME** เพื่อให้การจ่ายยาแม่นยำ:
 
-## การทำงานของระบบ
+| แบบ | วิธีใช้ | เมื่อไหร่ใช้ | ระยะเวลา |
+|-----|---------|--------------|----------|
+| **1. HOME ปกติ** | หมุน 1 รอบ | Calibrate เบื้องต้น | ~2 วินาที |
+| **2. HOME + จ่าย** | HOME แล้วจ่ายอัตโนมัติ | ใช้งานปกติ | ~5-10 วินาที |
+| **3. HOME แบบหาเซนเซอร์** | วิ่งจนเจอเซนเซอร์ | เครื่องหยุดกลางทาง | สูงสุด 10 วินาที |
 
-### ปุ่มและฟังก์ชัน
+## วิธีการควบคุม
 
-1. **ปุ่ม SW_CALC (PA0) - ปุ่ม HOME + DISPENSE**
-   - กดปุ่มนี้เพื่อเริ่มกระบวนการ HOME + จ่ายยา
-   - ลำดับการทำงาน:
-     1. หมุน 1 รอบด้วยความเร็วช้า (MOTOR_PWM_SLOW) เพื่อ HOME (calibration)
-     2. รอจนกว่า HOME จะเสร็จสิ้น (blocking wait)
-     3. หลังจาก HOME เสร็จ จะจ่ายยาด้วยความเร็วปกติ (MOTOR_PWM_DEFAULT)
+### ปุ่มบนเครื่อง
+- **SW_CALC (PA0)**: HOME + จ่ายยา (แบบ 2)
+- **SW_START (PA1)**: จ่ายยาโดยตรง (ไม่ HOME)
 
-2. **ปุ่ม SW_START (PA1) - ปุ่ม DISPENSE โดยตรง**
-   - กดปุ่มนี้เพื่อจ่ายยาโดยตรง (ไม่ผ่าน HOME)
-   - จ่ายยาด้วยความเร็วปกติ (MOTOR_PWM_DEFAULT) ตามค่าที่กำหนดทันที
+### ผ่าน Modbus (Register 12)
+- **ค่า 1**: HOME ปกติ (แบบ 1)
+- **ค่า 2**: HOME + จ่ายยา (แบบ 2)  
+- **ค่า 3**: HOME แบบหาเซนเซอร์ (แบบ 3)
 
-### การกำหนดค่า
+## การตั้งค่า
 
-ในไฟล์ `main.cpp` สามารถปรับค่าได้:
-
+### ค่าที่ปรับได้ (ใน main.cpp)
 ```cpp
-#define DISPENSE_ROTATIONS 10         // จำนวนรอบที่จะจ่าย
-#define HOME_ROTATIONS 1              // จำนวนรอบสำหรับ HOME (ใน main.cpp)
+#define DISPENSE_ROTATIONS 10    // จำนวนรอบจ่าย
+#define HOME_ROTATIONS 1         // จำนวนรอบ HOME ปกติ
 ```
 
-ในไฟล์ `include/dispense.h`:
-```cpp
-#define HOME_MAX_ROTATIONS 2          // ค่าสูงสุดสำหรับ HOME
-```
-
-### ตัวแปรสำคัญ
-
-```cpp
-// ในไฟล์ dispense.h และ dispense.cpp
-bool homeActive;                      // สถานะการทำ HOME
-bool homeCompleted;                   // สถานะความสำเร็จของ HOME
-volatile uint32_t rotationCounter;    // ตัวนับรอบปัจจุบัน
-uint32_t targetRotations;             // เป้าหมายจำนวนรอบ
-```
-
-## ฟังก์ชันที่อัปเดตแล้ว
-
-### ในไฟล์ dispense.h
-```cpp
-void home_start(uint32_t rotations, int motorSpeed = MOTOR_PWM_SLOW); // เริ่มการทำ HOME พร้อมกำหนดรอบและความเร็ว
-void home_stop();                         // หยุดการทำ HOME  
-bool is_home_completed();                 // ตรวจสอบว่า HOME เสร็จแล้วหรือไม่
-```
-
-### การทำงานของ ISR
-```cpp
-void _dispenseISR() {
-    rotationCounter++;
-    
-    // ตรวจสอบ HOME ก่อน (ใช้ HOME_MAX_ROTATIONS สำหรับ safety)
-    if (homeActive && rotationCounter >= HOME_MAX_ROTATIONS) {
-        home_stop();
-        return;
-    }
-    
-    // ตรวจสอบ DISPENSE
-    if (rotationCounter >= targetRotations && dispenseActive) {
-        dispense_stop();
-    }
-}
-```
+### ค่าความเร็ว
+- **HOME**: MOTOR_PWM_SLOW (1500) - ช้าเพื่อความแม่นยำ
+- **DISPENSE**: MOTOR_PWM_DEFAULT (3000) - ปกติ
 
 ## ลำดับการทำงาน
 
-### การกด SW_CALC (HOME + DISPENSE)
-1. ผู้ใช้กดปุ่ม SW_CALC
-2. ระบบเริ่ม HOME: `home_start(1, MOTOR_PWM_SLOW)` - หมุน 1 รอบด้วยความเร็วช้า
-3. รอให้ HOME เสร็จสิ้นด้วย blocking while loop
-4. เริ่มจ่ายยา: `dispense_start(DISPENSE_ROTATIONS, MOTOR_PWM_DEFAULT)`
-5. หยุดเมื่อครบตามจำนวนรอบ
+### แบบ 1: HOME ปกติ
+```
+1. หมุน 1 รอบด้วยความเร็วช้า
+2. หยุด เมื่อครบ 1 รอบ
+3. เสร็จ
+```
 
-### การกด SW_START (DISPENSE โดยตรง)
-1. ผู้ใช้กดปุ่ม SW_START  
-2. จ่ายยาทันที: `dispense_start(DISPENSE_ROTATIONS, MOTOR_PWM_DEFAULT)`
-3. หยุดเมื่อครบตามจำนวนรอบ
+### แบบ 2: HOME + จ่ายยา  
+```
+1. หมุน 1 รอบด้วยความเร็วช้า (HOME)
+2. รอให้ HOME เสร็จ
+3. จ่ายยา 10 รอบด้วยความเร็วปกติ
+4. เสร็จ
+```
 
-## คุณสมบัติการ Debug
+### แบบ 3: HOME แบบหาเซนเซอร์
+```
+1. หมุนด้วยความเร็วช้า
+2. รอจนเซนเซอร์ตรวจจับได้
+3. หยุด ทันทีที่เจอเซนเซอร์
+4. เสร็จ (หรือ timeout 10 วินาที)
+```
 
-ระบบมี debug output ทุก 2 วินาที:
+## การตรวจสอบสถานะ
+
+### ผ่าน Serial Monitor
+```
+[Home] Started: 1 rotation calibration
+[Home] Completed at 1 rotation
+[Home Seek] Started: Seeking home sensor...
+[Home Seek] Sensor detected - Home position found!
+```
+
+### ผ่าน Modbus Status (Register 20)
+- **Bit 5 = 1**: กำลังทำ HOME
+- **Bit 2 = 1**: เจอ HOME แล้ว
+- **Bit 4 = 1**: อยู่ที่ตำแหน่ง HOME
+
+## การแก้ปัญหา
+
+| ปัญหา | สาเหตุเป็นไปได้ | วิธีแก้ |
+|-------|----------------|---------|
+| HOME ไม่ทำงาน | เซนเซอร์เสีย | ตรวจสอบ SEN_1_PIN (PB9) |
+| หาเซนเซอร์ไม่เจอ | ตำแหน่งผิด | ย้ายเครื่องใกล้เซนเซอร์ |
+| Timeout 10 วินาที | เซนเซอร์ไกลเกินไป | ใช้ HOME แบบ 1 หรือ 2 แทน |
+
+## การปรับแต่งสำหรับผู้พัฒนา
+
+### ไฟล์สำคัญ
+- `include/dispense.h` - ประกาศฟังก์ชัน HOME
+- `src/dispense.cpp` - การทำงาน HOME  
+- `src/main.cpp` - การจัดการปุ่ม
+- `src/modbus_handler.cpp` - การควบคุมผ่าน Modbus
+
+### ฟังก์ชันหลัก
 ```cpp
-Serial.printf("[Debug] SW_CALC: %d, SW_START: %d\n", 
-             digitalRead(SW_CALC_PIN), digitalRead(SW_START_PIN));
+void home_start(uint32_t rotations, int motorSpeed);  // HOME ปกติ
+void home_seek_start(int motorSpeed);                 // HOME หาเซนเซอร์
+bool is_home_completed();                             // ตรวจสอบเสร็จหรือยัง
 ```
 
-## ข้อควรระวัง
+## เคล็ดลับการใช้งาน
 
-1. **Safety Checks**: ระบบมีการตรวจสอบความปลอดภัยต่อเนื่องใน `dispense_update()`
-2. **Debounce**: มีการป้องกัน bounce ของปุ่มด้วย delay 500ms
-3. **Blocking Wait**: การรอ HOME ใช้ while loop ที่ยังคงเรียก safety checks ทุก 500ms
-4. **Error Handling**: ระบบจะหยุดทำงานหากมอเตอร์หยุดโดยไม่คาดคิด
-5. **Parameter Validation**: ทั้ง `home_start()` และ `dispense_start()` ตรวจสอบพารามิเตอร์ก่อนใช้งาน
+1. **ใช้ HOME แบบ 2** สำหรับการใช้งานปกติ (มีทั้ง calibrate และจ่าย)
+2. **ใช้ HOME แบบ 3** เมื่อเครื่องหยุดกลางทางและต้องการหาตำแหน่งใหม่  
+3. **ดู Serial Monitor** เพื่อติดตามการทำงานแบบ real-time
+4. **ตรวจสอบ Status Bits** เพื่อรู้สถานะปัจจุบัน
 
-## การทดสอบ
-
-1. **ทดสอบ HOME**: กดปุ่ม SW_CALC และสังเกตว่า:
-   - มอเตอร์หมุน 1 รอบด้วยความเร็วช้าแล้วหยุด
-   - จากนั้นหมุนต่อ 10 รอบด้วยความเร็วปกติ
-   
-2. **ทดสอบ DISPENSE**: กดปุ่ม SW_START และสังเกตว่า:
-   - มอเตอร์หมุน 10 รอบด้วยความเร็วปกติโดยตรง
-   
-3. **ติดตาม Debug**: ดู Serial Monitor เพื่อ:
-   - ติดตามสถานะปุ่มทุก 2 วินาที
-   - ติดตามข้อความการทำงานของระบบ
-
-## การปรับแต่ง
-
-- **จำนวนรอบจ่าย**: แก้ไข `DISPENSE_ROTATIONS` ในไฟล์ main.cpp
-- **จำนวนรอบ HOME**: แก้ไข `HOME_ROTATIONS` ในไฟล์ main.cpp  
-- **ความเร็ว HOME**: แก้ไขพารามิเตอร์ที่สองใน `home_start()` 
-- **ความเร็ว DISPENSE**: แก้ไขพารามิเตอร์ที่สองใน `dispense_start()`
-- **ค่าสูงสุด HOME**: แก้ไข `HOME_MAX_ROTATIONS` ในไฟล์ dispense.h
-
-## ไฟล์ที่แก้ไข
-
-1. `include/dispense.h` - อัปเดตฟังก์ชัน HOME ให้รับพารามิเตอร์
-2. `src/dispense.cpp` - เพิ่มการ validate พารามิเตอร์ใน home_start()
-3. `src/main.cpp` - เพิ่มการจัดการปุ่ม, debug output และ blocking wait
-
-## ข้อมูล Technical
-
-- **HOME Speed**: MOTOR_PWM_SLOW (1500) - ความเร็วช้าสำหรับความแม่นยำ
-- **Dispense Speed**: MOTOR_PWM_DEFAULT (3000) - ความเร็วปกติ
-- **Sensor**: SEN_1_PIN (PB9) - เซนเซอร์ตรวจจับรอบ (1 PPR)
-- **Polling Rate**: ทุก 10ms สำหรับ safety checks
-- **Debug Rate**: ทุก 2000ms สำหรับ status display
-
-ระบบนี้ให้ความยืดหยุ่นในการใช้งาน โดยผู้ใช้สามารถเลือกได้ว่าจะให้ระบบทำ HOME ก่อนจ่ายยา หรือจ่ายยาโดยตรง พร้อมทั้งมีระบบ debug เพื่อช่วยในการแก้ไขปัญหา
-    rotationCounter++;
-    
-    // ตรวจสอบ HOME ก่อน
-    if (homeActive && rotationCounter >= HOME_ROTATIONS) {
-        home_stop();
-        return;
-    }
-    
-    // ตรวจสอบ DISPENSE
-    if (rotationCounter >= targetRotations && dispenseActive) {
-        dispense_stop();
-    }
-}
+ระบบนี้ให้ความยืดหยุ่นสูง: **ปุ่ม manual** และ **Modbus remote** ใช้ร่วมกันได้
 ```
 
-## ลำดับการทำงาน
-
-### การกด SW_CALC (HOME + DISPENSE)
-1. ผู้ใช้กดปุ่ม SW_CALC
-2. ระบบเริ่ม HOME: หมุน 1 รอบ
-3. รอให้ HOME เสร็จสิ้น
-4. เริ่มจ่ายยาตามค่าที่กำหนด
-5. หยุดเมื่อครบตามจำนวนรอบ
-
-### การกด SW_START (DISPENSE โดยตรง)
-1. ผู้ใช้กดปุ่ม SW_START  
-2. จ่ายยาทันทีตามค่าที่กำหนด
-3. หยุดเมื่อครบตามจำนวนรอบ
-
-## ข้อควรระวัง
-
-1. **Safety Checks**: ระบบมีการตรวจสอบความปลอดภัยต่อเนื่อง
-2. **Debounce**: มีการป้องกัน bounce ของปุ่มด้วย delay 500ms
-3. **Non-blocking**: การรอ HOME ใช้ while loop ที่ยังคงเรียก safety checks
-4. **Error Handling**: ระบบจะหยุดทำงานหากมอเตอร์หยุดโดยไม่คาดคิด
-
-## การทดสอบ
-
-1. **ทดสอบ HOME**: กดปุ่ม SW_CALC และสังเกตว่ามอเตอร์หมุน 1 รอบแล้วหยุด จากนั้นหมุนต่อตามจำนวนที่กำหนด
-2. **ทดสอบ DISPENSE**: กดปุ่ม SW_START และสังเกตว่ามอเตอร์หมุนตามจำนวนที่กำหนดโดยตรง
-3. **ติดตาม Serial**: ดู Serial Monitor เพื่อติดตามสถานะการทำงาน
-
-## การปรับแต่ง
-
-- **จำนวนรอบจ่าย**: แก้ไข `DISPENSE_ROTATIONS` ในไฟล์ main.cpp
-- **ความเร็ว**: แก้ไข `DISPENSE_SPEED` ในไฟล์ main.cpp  
-- **HOME รอบ**: แก้ไข `HOME_ROTATIONS` ในไฟล์ dispense.h (ปกติควรเป็น 1)
-
-## ไฟล์ที่แก้ไข
-
-1. `include/dispense.h` - เพิ่มฟังก์ชันและตัวแปร HOME
-2. `src/dispense.cpp` - เพิ่มการทำงาน HOME และ ISR ใหม่
-3. `src/main.cpp` - เพิ่มการจัดการปุ่มและลำดับการทำงาน
-
-ระบบนี้ให้ความยืดหยุ่นในการใช้งาน โดยผู้ใช้สามารถเลือกได้ว่าจะให้ระบบทำ HOME ก่อนจ่ายยา หรือจ่ายยาโดยตรง
+ระบบนี้ให้ความยืดหยุ่นสูง: **ปุ่ม manual** และ **Modbus remote** ใช้ร่วมกันได้

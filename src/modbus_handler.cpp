@@ -50,7 +50,8 @@ void modbusHandler()
 void processHomeCommand(int homeCmd)
 {
     // ตรวจสอบคำสั่ง HOME
-    if (homeCmd == HOME_CMD_FIND) {
+    if (homeCmd == HOME_CMD_FIND) 
+    {
         Serial.println("[Modbus] HOME command received - Starting home sequence");
         
         // Clear the command register
@@ -61,7 +62,8 @@ void processHomeCommand(int homeCmd)
         
         Serial.println("[Modbus] Home operation started via Modbus");
     }
-    else if (homeCmd == HOME_CMD_RETURN) {
+    else if (homeCmd == HOME_CMD_RETURN) 
+    {
         Serial.println("[Modbus] HOME+DISPENSE command received - Starting home then dispense sequence");
         
         // Clear the command register
@@ -75,7 +77,8 @@ void processHomeCommand(int homeCmd)
         
         Serial.println("[Modbus] Home+Dispense sequence started via Modbus");
     }
-    else if (homeCmd == HOME_CMD_SEEK) {
+    else if (homeCmd == HOME_CMD_SEEK) 
+    {
         Serial.println("[Modbus] HOME SEEK command received - Seeking home sensor");
         
         // Clear the command register
@@ -91,7 +94,8 @@ void processHomeCommand(int homeCmd)
 void processDispenseCommand(int dispenseRotations)
 {
     // ตรวจสอบคำสั่ง DISPENSE (1-99 รอบ)
-    if (dispenseRotations > 0 && dispenseRotations <= 99) {
+    if (dispenseRotations > 0 && dispenseRotations <= 99) 
+    {
         Serial.printf("[Modbus] DISPENSE command received - %d rotations\n", dispenseRotations);
         
         // Clear the command register
@@ -120,28 +124,34 @@ void updateStatusRegisters()
     uint16_t status = 0;
     
     // ตรวจสอบสถานะต่างๆ
-    if (flag_motorRunning) {
+    if (flag_motorRunning) 
+    {
         status |= STATUS_MOTOR_RUNNING;
     }
     
-    if (dispenseActive) {
+    if (dispenseActive) 
+    {
         status |= STATUS_DISPENSE_ACTIVE;
     }
     
-    if (homeActive) {
+    if (homeActive) 
+    {
         status |= STATUS_HOMING;
     }
     
-    if (homeSeeking) {
+    if (homeSeeking) 
+    {
         status |= STATUS_HOMING;  // ใช้ flag เดียวกันสำหรับการ seek sensor
     }
     
-    if (homeCompleted) {
+    if (homeCompleted) 
+    {
         status |= STATUS_HOME_FOUND;
         status |= STATUS_AT_HOME;
     }
     
-    if (isEnhancedHomingActive) {
+    if (isEnhancedHomingActive) 
+    {
         status |= STATUS_CALIBRATING;  // ใช้ bit นี้แสดงว่ากำลังทำ Enhanced Homing
     }
     
@@ -158,16 +168,19 @@ void updateStatusRegisters()
 void updateHomingProcess()
 {
     // ตรวจสอบว่า Enhanced Homing (HOME + DISPENSE) เปิดใช้งานหรือไม่
-    if (isEnhancedHomingActive) {
+    if (isEnhancedHomingActive) 
+    {
         // ตรวจสอบว่า HOME เสร็จแล้วและไม่มี operation อื่นทำงานอยู่
-        if (homeCompleted && !homeActive && !dispenseActive) {
+        if (homeCompleted && !homeActive && !dispenseActive) 
+        {
             Serial.println("[Modbus] Home completed, starting dispense sequence");
             
             // อ่านพารามิเตอร์สำหรับ dispense
             int motorSpeed = rtu.holdingRegisterRead(ADDR_REG_SPEED);
             
             // ตรวจสอบความเร็วให้อยู่ในช่วงที่ถูกต้อง
-            if (motorSpeed < MOTOR_PWM_MIN || motorSpeed > MOTOR_PWM_MAX) {
+            if (motorSpeed < MOTOR_PWM_MIN || motorSpeed > MOTOR_PWM_MAX) 
+            {
                 motorSpeed = MOTOR_PWM_DEFAULT;
             }
             
