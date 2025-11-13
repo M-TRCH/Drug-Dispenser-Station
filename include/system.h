@@ -27,9 +27,6 @@
 #define SYS_RX1_PIN     PA10    // System RX1
 #define SYS_TX1_PIN     PA9     // System TX1
 #define RS485_DUMMY_PIN PA4     // RS485 Dummy pin
-#define SYS_SERIAL_TIMEOUT      1000U   // SYS Serial Timeout (ms)
-#define RS485_TIMEOUT           500U    // RS485 communication timeout (ms)
-#define RS232_TIMEOUT           500U    // RS232 communication timeout (ms)
 
 // System constants
 #define SYSTEM_BAUDRATE          9600U      // System serial baudrate
@@ -38,6 +35,11 @@
 #define ANALOG_READ_RESOLUTION   12U        // ADC resolution (0-4095)
 #define MOTOR_PWM_FREQUENCY      20000U     // PWM frequency: 20kHz 
 #define MOTOR_PWM_RESOLUTION     12U        // PWM resolution: 12-bit (0-4095)
+
+// Timeout definitions
+#define SYS_SERIAL_TIMEOUT      1000U   // SYS Serial Timeout (ms)
+#define RS485_TIMEOUT           500U    // RS485 communication timeout (ms)
+#define RS232_TIMEOUT           500U    // RS232 communication timeout (ms)
 
 // Object definitions
 extern HardwareSerial Serial;

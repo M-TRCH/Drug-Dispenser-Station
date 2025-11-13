@@ -12,7 +12,8 @@
 #define MOTOR_PWM_DECEL      1000       // Deceleration speed
 
 // Motor control modes
-enum MotorMode {
+enum MotorMode 
+{
     MOTOR_STOP = 0,
     MOTOR_FORWARD = 1,
     MOTOR_REVERSE = 2

@@ -7,7 +7,7 @@
 #include "dispense.h"
 
 // Modbus configuration
-#define MODBUS_SLAVE_ID         55        // Modbus slave address
+#define MODBUS_SLAVE_ID         55        // Modbus slave address (ตั้งตามที่สะดวกเลย)
 #define MODBUS_REGISTER_COUNT   50        // Number of holding registers
 
 // Modbus register map (Extended with Homing) 
@@ -25,14 +25,6 @@
 #define HOME_CMD_FIND           1       // Find home position (rotation-based)
 #define HOME_CMD_RETURN         2       // Return to home position
 #define HOME_CMD_SEEK           3       // Seek home sensor (run until sensor detected)
-
-// Calibration command codes  
-//#define CALIB_CMD_NONE          0       // No calibration command
-//#define CALIB_CMD_START         1       // Start calibration
-
-// Sensor test command codes
-//#define SENSOR_TEST_NONE        0       // No sensor test
-//#define SENSOR_TEST_START       1       // Start sensor test (10 readings)
 
 // Status bit flags
 #define STATUS_MOTOR_RUNNING    (1 << 0)   // Motor is running
@@ -56,7 +48,7 @@
 extern ModbusRTUServerClass rtu;    // Modbus RTU server instance
 
 // ===== SHARED VARIABLES =====
-extern bool isEnhancedHomingActive;  // แชร์สถานะ Enhanced Homing กับไฟล์อื่น
+extern bool isEnhancedHomingActive;  // แชร์สถานะ Enhanced Homing 
 
 // Function declarations
 void modbusInit();                       // Initialize Modbus communication

@@ -43,13 +43,16 @@ void startMotor(int pwmSpeed, bool forward)
 
 void stopMotor(bool brake) 
 {
-    if (brake && flag_motorRunning) {
+    if (brake && flag_motorRunning) 
+    {
         // Dynamic braking: briefly apply reverse current
-        if (currentMotorMode == MOTOR_FORWARD) {
+        if (currentMotorMode == MOTOR_FORWARD) 
+        {
             analogWrite(PWM_A_PIN, 0);
             analogWrite(PWM_B_PIN, MOTOR_PWM_DECEL);
             delay(50);  // Brief braking pulse
-        } else if (currentMotorMode == MOTOR_REVERSE) {
+        } else if (currentMotorMode == MOTOR_REVERSE) 
+        {
             analogWrite(PWM_A_PIN, MOTOR_PWM_DECEL);
             analogWrite(PWM_B_PIN, 0);
             delay(50);  // Brief braking pulse
@@ -70,7 +73,8 @@ void stopMotor(bool brake)
 
 void changeMotorSpeed(int targetSpeed, int stepSize, int stepDelay)
 {
-    if (!flag_motorRunning) {
+    if (!flag_motorRunning) 
+    {
         Serial.println("[Motor] Cannot change speed - motor not running");
         return;
     }
@@ -79,18 +83,23 @@ void changeMotorSpeed(int targetSpeed, int stepSize, int stepDelay)
     
     Serial.printf("[Motor] Changing speed from %d to %d\n", currentMotorSpeed, targetSpeed);
     
-    while (currentMotorSpeed != targetSpeed) {
-        if (currentMotorSpeed < targetSpeed) {
+    while (currentMotorSpeed != targetSpeed) 
+    {
+        if (currentMotorSpeed < targetSpeed) 
+        {
             currentMotorSpeed = min(currentMotorSpeed + stepSize, targetSpeed);
-        } else {
+        } else 
+        {
             currentMotorSpeed = max(currentMotorSpeed - stepSize, targetSpeed);
         }
         
         // Apply new speed while maintaining direction
-        if (currentMotorMode == MOTOR_FORWARD) {
+        if (currentMotorMode == MOTOR_FORWARD) 
+        {
             analogWrite(PWM_A_PIN, currentMotorSpeed);
             analogWrite(PWM_B_PIN, 0);
-        } else if (currentMotorMode == MOTOR_REVERSE) {
+        } else if (currentMotorMode == MOTOR_REVERSE) 
+        {
             analogWrite(PWM_A_PIN, 0);
             analogWrite(PWM_B_PIN, currentMotorSpeed);
         }
@@ -105,7 +114,8 @@ String getMotorStatus()
 {
     String status = "Motor Status: ";
     
-    if (!flag_motorRunning) {
+    if (!flag_motorRunning) 
+    {
         status += "STOPPED";
     } else {
         status += "RUNNING | Speed: " + String(currentMotorSpeed) + " | Direction: ";
