@@ -43,7 +43,7 @@
 
 // Object definitions
 extern HardwareSerial Serial;
-extern HardwareSerial Serial3;   
+extern HardwareSerial Serial3;
 extern RS485Class rs485;
 
 // Macros definitions
