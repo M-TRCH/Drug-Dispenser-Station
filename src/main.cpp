@@ -1,3 +1,12 @@
+/**
+ * @file main.cpp
+ * @brief Drug Dispenser Station - Main Application
+ * @author M.Teerachot, ijaoMxy
+ * @date 2025
+ * 
+ * This is the main application file for the drug dispenser station system.
+ * It initializes all subsystems and manages the main control loop.
+ */
 #include <Arduino.h>
 
 #define RS232_RX_PIN PB7
